@@ -1,0 +1,16 @@
+{
+  "name": "airtable_gmail_chrome_extension",
+  "version": "1.0.0",
+  "private": true,
+  "license": "MIT",
+  "email": "jlouie95618@gmail.com",
+  "homepage": "https://github.com/jlouie95618/airtable-webapp-console.git",
+  "repository": "git://github.com/jlouie95618/airtable-webapp-console.git",
+  "main": "./js/extension.js",
+  "dependencies": {
+
+  },
+  "devDependencies": {
+
+  }
+}
