@@ -1,5 +1,6 @@
 .DS_Store
-*/.DS_Store
-simple-https-server.py
+**/.DS_Store/*
 test/*
 devNotes.md
+!build/.gitkeep
+**/node_modules/*
