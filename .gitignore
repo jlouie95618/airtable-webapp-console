@@ -2,5 +2,6 @@
 **/.DS_Store/*
 test/*
 devNotes.md
+build/*
 !build/.gitkeep
 **/node_modules/*
