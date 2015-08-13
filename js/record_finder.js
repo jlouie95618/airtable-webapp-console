@@ -7,3 +7,5 @@ var RecordFinder = Class.extend({
         
     }
 });
+
+module.exports = RecordFinder;

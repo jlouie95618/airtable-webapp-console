@@ -3,7 +3,13 @@
 var GenericMethod = require('./generic_method.js');
 
 var Create = GenericMethod.extend({
-    init: function() {
-        
+    init: function(tableName, recordId) {
+        this._super(tableName, recordId);
+        this._container.append($('<div/>').append('base("' + tableName + 
+            '").create({'));
+        this._container.append(this._updateValue);
+        this._container.append($('<div/>').append('}'));
     }
 });
+
+module.exports = Create;
