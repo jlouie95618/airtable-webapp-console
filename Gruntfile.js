@@ -9,8 +9,19 @@ module.exports = function(grunt) {
         clean: ['./build/*'],
         copy: {
             main: {
-                src: './css/*',
-                dest: './build/'
+                files: [
+                    {
+                        expand: true,
+                        src: './css/*',
+                        dest: './build/'
+                    }, {
+                        expand: true,
+                        src: ['./js/extension.js', './js/vendor/jquery-1.11.3.min.js', 'manifest.json'],
+                        dest: './build/extension/'
+
+                    }
+                ]
+
             }
         },
         jshint: {
