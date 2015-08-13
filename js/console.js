@@ -37,7 +37,7 @@ var Console = Class.extend({
 
         // Logic pertaining to when a new row is created by the user
         this._table.bindToRowCreatedFromUser(function(recordId) {
-            console.log('ROW CREATED: ', arguments, recordId);
+            that._handleRowCreated(recordId);
         });
 
         // Logic pertaining to when a user deletes one or more records
@@ -50,14 +50,19 @@ var Console = Class.extend({
 
 
 
-
+    _handleRowCreated: function(recordId) {
+        console.log('ROW CREATED: ', recordId);
+        this._rowCreated = true;
+        console.log('this._rowCreated JUST SET: ', this._rowCreated);
+    },
     _handleMultipleRowsDestroyed: function(recordIds) {
+        var that = this;
         console.log('ROW(S) DESTROYED: ', recordIds);
         recordIds.forEach(function(recordId, index) {
             var deletedRecord = new Delete(
-                this._table.getName(), recordId
+                that._table.getName(), recordId
             );
-            this._apiConsole.append(deletedRecord.outputContainer());
+            that._apiConsole.append(deletedRecord.outputContainer());
         });
     },
 
@@ -68,10 +73,19 @@ var Console = Class.extend({
     _handleRowBeginEdit: function(recordId){
         var that = this;
         this._table.unbindFromCellValueChange();
-        console.log('BEGIN: ', arguments, recordId);
-        this._table.bindToCellValueChange(function(recordId, columnId) {
-            that._inRowCellChanges(recordId, columnId);
-        });
+        console.log('this._rowCreated: ', this._rowCreated);
+        if (this._rowCreated) {
+            console.log('BEGIN (post created a row):', recordId);
+            this._rowCreated = false;
+            this._table.bindToCellValueChange(function(recordId, columnId) {
+                that._inNewRowCellChanges(recordId, columnId);
+            });
+        } else {
+            console.log('BEGIN (normal): ', recordId);
+            this._table.bindToCellValueChange(function(recordId, columnId) {
+                that._inRowCellChanges(recordId, columnId);
+            });
+        }
     },
     _handleRowEndEdit: function(recordId) { 
         console.log('ENDED: ', arguments, recordId);
@@ -104,8 +118,19 @@ var Console = Class.extend({
 
 
     // Call back functions
+    _inNewRowCellChanges: function(recordId, columnId) {
+        var columns = this._table.getCellValuesByColumnId(recordId);
+        if (this._currentRecord !== recordId) {
+            this._currentMethodInstance = new Create(this._table.getName());
+            this._apiConsole.append(this._currentMethodInstance.outputContainer());
+            this._currentRecord = recordId;            
+        }
+        this._currentMethodInstance.updateParameters(columns, 
+            columnId, this._table.getColumnById(columnId).getName());
+    },
     _inRowCellChanges: function(recordId, columnId) {
         console.log('recordId and columnId: ', recordId, columnId);
+        this._inExpandedViewCellChanges(recordId, columnId);
     },
     _inExpandedViewCellChanges: function(recordId, columnId) {// arguments[recordId, fieldId, undefined]
         var columns = this._table.getCellValuesByColumnId(recordId);
