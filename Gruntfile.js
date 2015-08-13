@@ -26,7 +26,8 @@ module.exports = function(grunt) {
         },
         jshint: {
             // define the files to lint
-            files: ['./Gruntfile.js', './js/extension.js', './js/api_console.js'],
+            files: ['./Gruntfile.js', './js/extension.js', './js/api_console.js', 
+                './js/console.js', './js/record_finder.js', './js/methods/*'],
             // configure JSHint (documented at http://www.jshint.com/docs/)
             options: {
                 strict: true,
@@ -39,7 +40,8 @@ module.exports = function(grunt) {
                     module: true,
                     hyperbaseForFrameAccess: true,
                     require: true
-                }
+                },
+                validthis: true
             }
         }
     });
