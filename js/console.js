@@ -126,7 +126,7 @@ var Console = Class.extend({
             this._currentRecord = recordId;            
         }
         this._currentMethodInstance.updateParameters(columns, 
-            columnId, this._table.getColumnById(columnId).getName());
+            columnId, this._table.getColumnById(columnId));
     },
     _inRowCellChanges: function(recordId, columnId) {
         console.log('recordId and columnId: ', recordId, columnId);
@@ -142,7 +142,7 @@ var Console = Class.extend({
             this._currentRecord = recordId;
         }
         this._currentMethodInstance.updateParameters(columns, 
-            columnId, this._table.getColumnById(columnId).getName());
+            columnId, this._table.getColumnById(columnId));
     }
 });
 

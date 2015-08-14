@@ -13,8 +13,10 @@ var GenericMethod = Class.extend({
     outputContainer: function() {
         return this._container;
     },
-    updateParameters: function(columns, currColumnId, columnName) {
+    updateParameters: function(columns, currColumnId, currColumn) {
         var that = this;
+        var columnName = currColumn.getName();
+        this._currColumn = currColumn;
         if (currColumnId !== this._currentColumnIdBeingModified) { // well we changed which column we're modifying
             if (columnName in this._columnNameToDivElem) { // have we already seen the column we're modifying?
                 this._currKeyValue = this._columnNameToDivElem[columnName];
@@ -44,7 +46,16 @@ var GenericMethod = Class.extend({
     _outputValue: function(input) {
         var result = '';
         var first = true;
+        var that = this;
+        console.log('input: ', input);
+        console.log('this._currColumn: ', this._currColumn);
+        console.log('type: ', this._currColumn.getType());
+        console.log('options: ', this._currColumn.getTypeOptions());
         if (typeof input === 'string') {
+            if ((this._currColumn.getType() === 'select' || this._currColumn.getType() === 'multiSelect') &&
+                this._currColumn.getTypeOptions()) { // situation when we've got a select option
+                input = this._currColumn.getTypeOptions().choices[input].name;
+            }
             result = JSON.stringify(input);
         } else if (input === null) {
             result = input;
@@ -59,10 +70,10 @@ var GenericMethod = Class.extend({
                 result += '[ ';
                 input.forEach(function(elem) {
                     if (first) {
-                        result += this._outputValue(elem);
+                        result += that._outputValue(elem);
                         first = false;
                     } else {
-                        result += ', ' + this._outputValue(elem);
+                        result += ', ' + that._outputValue(elem);
                     }
                 });
                 result += ' ]';
