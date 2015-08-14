@@ -8,7 +8,7 @@ var Create = GenericMethod.extend({
         this._container.append($('<div/>').append('base("' + tableName + 
             '").create({'));
         this._container.append(this._updateValue);
-        this._container.append($('<div/>').append('}'));
+        this._container.append($('<div/>').append('});'));
     }
 });
 

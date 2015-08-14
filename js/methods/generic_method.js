@@ -30,18 +30,21 @@ var GenericMethod = Class.extend({
         console.log('this._currentColumnIdBeingModified: ', this._currentColumnIdBeingModified);
         console.log('columns: ', columns);
 
-        this._currKeyValue.text(
-            '"' + columnName + 
-            '": ' + this._outputValue(columns[this._currentColumnIdBeingModified])
-        );
+        if (this._isNotCountFormulaLookupRollupType()) {
+            this._currKeyValue.text(
+                '"' + columnName + 
+                '": ' + this._outputValue(columns[this._currentColumnIdBeingModified])
+            );
+        }
         
     },
     _constructKeyValueDiv: function(columnName, value) {
-        this._currKeyValue = $('<div/>').append('"' + columnName + '": ' + value).addClass('key-value');
-        this._columnNameToDivElem[columnName] = this._currKeyValue;
-        this._updateValue.append(this._currKeyValue);
-        console.log('saved key value pair...', columnName, this._currKeyValue, this._columnNameToDivElem);
-        return this._currKeyValue;
+        if (this._isNotCountFormulaLookupRollupType()) {
+            this._currKeyValue = $('<div/>').append('"' + columnName + '": ' + value).addClass('key-value');
+            this._columnNameToDivElem[columnName] = this._currKeyValue;
+            this._updateValue.append(this._currKeyValue);
+            console.log('saved key value pair...', columnName, this._currKeyValue, this._columnNameToDivElem);
+        }
     },
     _outputValue: function(input) {
         var result = '';
@@ -62,18 +65,25 @@ var GenericMethod = Class.extend({
         } else if (typeof input === 'object') {
             if (Object.prototype.toString.call(input) === '[object Object]') {
                 result += '{';
-                if (input.url) {
-                    result += '"url": "' + input.url + '"';
-                }
+                if (input.url) { result += '"url": "' + input.url + '"'; }
                 result += ' }';
             } else if (Object.prototype.toString.call(input) === '[object Array]') {
                 result += '[ ';
                 input.forEach(function(elem) {
                     if (first) {
-                        result += that._outputValue(elem);
+                        if (that._currColumn.getType() === 'foreignKey') {
+                            result += that._outputValue(elem.foreignRowId);
+                        } else {
+                            result += that._outputValue(elem);
+                        }
                         first = false;
                     } else {
-                        result += ', ' + that._outputValue(elem);
+                        result += ', ';
+                        if (that._currColumn.getType() === 'foreignKey') {
+                            result += that._outputValue(elem.foreignRowId);
+                        } else {
+                            result += that._outputValue(elem);
+                        }
                     }
                 });
                 result += ' ]';
@@ -82,6 +92,18 @@ var GenericMethod = Class.extend({
             result = input;
         }
         return result;
+    },
+    _isNotCountFormulaLookupRollupType: function() {
+        var currColumnType;
+        if (this._currColumn) {
+            currColumnType = this._currColumn.getType();
+            return (currColumnType !== 'count' && 
+                currColumnType !== 'formula' &&
+                currColumnType !== 'lookup' &&
+                currColumnType !== 'rollup');
+        } else {
+            return false;
+        }
     }
 });
 

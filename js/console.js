@@ -45,10 +45,10 @@ var Console = Class.extend({
             that._handleMultipleRowsDestroyed(recordIds);
         });
 
+        // Logic pertaining to collaborator changes
+        // TODO
+
     },
-
-
-
 
     _handleRowCreated: function(recordId) {
         console.log('ROW CREATED: ', recordId);
@@ -66,23 +66,21 @@ var Console = Class.extend({
         });
     },
 
-
-
-
-
     _handleRowBeginEdit: function(recordId){
         var that = this;
-        this._table.unbindFromCellValueChange();
+        // this._table.unbindFromCellValueChange();
         console.log('this._rowCreated: ', this._rowCreated);
         if (this._rowCreated) {
             console.log('BEGIN (post created a row):', recordId);
             this._rowCreated = false;
             this._table.bindToCellValueChange(function(recordId, columnId) {
+                console.log('row begin edit arguments: ', arguments);
                 that._inNewRowCellChanges(recordId, columnId);
             });
         } else {
             console.log('BEGIN (normal): ', recordId);
             this._table.bindToCellValueChange(function(recordId, columnId) {
+                console.log('row begin edit arguments (normal): ', arguments);
                 that._inRowCellChanges(recordId, columnId);
             });
         }
@@ -92,16 +90,13 @@ var Console = Class.extend({
         this._table.unbindFromCellValueChange();
     },
 
-
-
-
-
     _handleExpandedRowBeginEdit: function(recordId) {
         var that = this;
         console.log(this._table);
-        this._table.unbindFromCellValueChange();
+        // this._table.unbindFromCellValueChange();
         console.log('EXPANDED: ', arguments, recordId);
         this._table.bindToCellValueChange(function(recordId, columnId) {
+            console.log('row expanded edit arguments: ', arguments);
             that._inExpandedViewCellChanges(recordId, columnId);
         });
         $('.detailView>.dialog').append(this._apiConsole);
@@ -112,10 +107,6 @@ var Console = Class.extend({
         $('.api-console').remove();
         this._table.unbindFromCellValueChange();
     },
-
-
-
-
 
     // Call back functions
     _inNewRowCellChanges: function(recordId, columnId) {
