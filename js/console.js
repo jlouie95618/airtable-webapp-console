@@ -10,15 +10,43 @@ var Method = require('./methods/generic_method.js');
 
 var Console = Class.extend({
     init: function() {
-        var that = this;
         console.log('hyperbaseForFrameAccess: ', hyperbaseForFrameAccess);
         this._table = hyperbaseForFrameAccess.getActiveTableModel();
         this._baseId = hyperbaseForFrameAccess.getActiveApplicationModel().getId();
         this._keyValuesInRecord = {};
         this._apiConsole = $('<div/>').addClass('api-console');
-        this._apiConsole.append($('<div/>').append('var Airtable = require("airtable");'));
-        this._apiConsole.append($('<div/>').append('var base = new Airtable({ apiKey: "YOUR_API_KEY" }).base(' + this._baseId + ');'));
+        this._apiConsole.append(this._generateLanguageOptionsMenu());
+        this._initializeBindings();
+    },
 
+    _generateLanguageOptionsMenu: function() {
+        var that = this;
+        var options = $('<select/>').addClass('language-options');
+        options.append($('<option/>').append(''));
+        options.append($('<option/>').attr('value', 'javascript').append('JavaScript'));
+        options.append($('<option/>').attr('value', 'python').append('Python'));
+        options.append($('<option/>').attr('value', 'ruby').append('Ruby'));
+        options.on('change', function(argument) {
+            var value = $(this).val();
+            that._isLanguageInitialized = false;
+            if (value === 'javascript') {
+                that._apiConsole.append(
+                    $('<div/>').append('var Airtable = require("airtable");'));
+                that._apiConsole.append(
+                    $('<div/>').append('var base = new Airtable({ ' + 
+                        'apiKey: "YOUR_API_KEY" }).base(' + that._baseId + ');'));
+                that._isLanguageInitialized = true;
+            } else if (value === 'python') {
+                // that._isLanguageInitialized = true;
+            } else if (value === 'ruby') {
+                // that._isLanguageInitialized = true;
+            }
+        });
+        return $('<div/>').append('Choose an API language: ').append(options);
+    },
+
+    _initializeBindings: function() {
+        var that = this;
         // Logic pertaining to when edits are peformed directly to the rows
         this._table.bindToBeginEditingRow(function(recordId) {
             that._handleRowBeginEdit(recordId);
@@ -46,8 +74,7 @@ var Console = Class.extend({
         });
 
         // Logic pertaining to collaborator changes
-        // TODO
-
+        // TODO        
     },
 
     _handleRowCreated: function(recordId) {
@@ -75,13 +102,17 @@ var Console = Class.extend({
             this._rowCreated = false;
             this._table.bindToCellValueChange(function(recordId, columnId) {
                 console.log('row begin edit arguments: ', arguments);
-                that._inNewRowCellChanges(recordId, columnId);
+                if (that._isLanguageInitialized) { 
+                    that._inNewRowCellChanges(recordId, columnId); 
+                }
             });
         } else {
             console.log('BEGIN (normal): ', recordId);
             this._table.bindToCellValueChange(function(recordId, columnId) {
                 console.log('row begin edit arguments (normal): ', arguments);
-                that._inRowCellChanges(recordId, columnId);
+                if (that._isLanguageInitialized) { 
+                    that._inRowCellChanges(recordId, columnId); 
+                }
             });
         }
     },
@@ -97,7 +128,9 @@ var Console = Class.extend({
         console.log('EXPANDED: ', arguments, recordId);
         this._table.bindToCellValueChange(function(recordId, columnId) {
             console.log('row expanded edit arguments: ', arguments);
-            that._inExpandedViewCellChanges(recordId, columnId);
+            if (that._isLanguageInitialized) { 
+                that._inExpandedViewCellChanges(recordId, columnId); 
+            }
         });
         $('.detailView>.dialog').append(this._apiConsole);
     },
