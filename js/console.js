@@ -2,7 +2,7 @@
 
 var Class = require('./vendor/class.js');
 var CodeMirror = require('codemirror');
-console.log(CodeMirror);
+// Import the different language modes using Node/npm
 require('../node_modules/codemirror/mode/javascript/javascript.js');
 require('../node_modules/codemirror/mode/python/python.js');
 require('../node_modules/codemirror/mode/ruby/ruby.js');
@@ -21,8 +21,8 @@ var Console = Class.extend({
         this._keyValuesInRecord = {};
         this._apiConsole = $('<div/>').addClass('api-console');
         // Variables that pertain to the creation of CodeMirror instances
-        this._textareaIds = ['javascript-textarea', 'python-textarea', 'ruby-textarea'];
-        this._textareaMode = ['javascript', 'python', 'ruby'];
+        this._cmIds = ['javascript-cm', 'python-cm', 'ruby-cm'];
+        this._cmMode = ['javascript', 'python', 'ruby'];
         this._codeMirrorInstances = [];
         this._currCodeMirror = null;
         // Initialization of various elements and listeners:
@@ -33,70 +33,44 @@ var Console = Class.extend({
 
     _generateCodeMirrorInstances: function() {
         var that = this;
-        this._textareaIds.forEach(function(id, index) {
+        this._cmIds.forEach(function(id, index) {
             that._codeMirrorInstances[index] = new CodeMirror(function(elem) {
-                $(elem).attr('id', that._textareaIds[index]);
+                $(elem).attr('id', that._cmIds[index]);
                 $(that._apiConsole).append($(elem));
             }, {
                 value: that._outputDefaultMessages(id),
-                mode: that._textareaMode[index],
+                mode: that._cmMode[index],
                 lineNumbers: true
             });
         });
     },
 
     _outputDefaultMessages: function(id) {
-        if (id === 'javascript-textarea') {
-            return '// JavaScript Client\n\'console\'\n\'what is going on\'';
-        } else if (id === 'python-textarea') {
-            return '# Python Client - thanks to ____';
-        } else if (id === 'ruby-textarea') {
+        if (id === 'javascript-cm') {
+            return '// JavaScript Client\n' + 
+                'var Airtable = require(\'airtable\');\n' + 
+                'var base = new Airtable({ \n' + 
+                '\tapiKey: \'YOUR_API_KEY\' \n' + 
+                '}).base(\'' + this._baseId + '\');';
+        } else if (id === 'python-cm') {
+            return '# Python Client - thanks to ____\n' + 
+                'import airtable\n' + 
+                'at = airtable.Airtable(\'' + this._baseId + '\', \'YOUR_API_KEY\')';
+        } else if (id === 'ruby-cm') {
             return '# Ruby Client - thanks to ____';
         }
     },
 
     _generateLanguageOptionsMenu: function() {
         var that = this;
-        var options = this._createLanguageSelection();
-        options.on('change', function() {
-            that._language = $(this).val();
-            that._isLanguageInitialized = false;
-            if (that._language === 'javascript') {
-                $(that._codeMirrorInstances[1].getWrapperElement()).hide();
-                $(that._codeMirrorInstances[2].getWrapperElement()).hide();
-                $(that._codeMirrorInstances[0].getWrapperElement()).show();
-                that._currCodeMirror = that._codeMirrorInstances[0];
-            } else if (that._language === 'python') {
-                $(that._codeMirrorInstances[0].getWrapperElement()).hide();
-                $(that._codeMirrorInstances[2].getWrapperElement()).hide();
-                $(that._codeMirrorInstances[1].getWrapperElement()).show();
-                that._currCodeMirror = that._codeMirrorInstances[1];
-            } else if (that._language === 'ruby') {
-                $(that._codeMirrorInstances[0].getWrapperElement()).hide();
-                $(that._codeMirrorInstances[1].getWrapperElement()).hide();
-                $(that._codeMirrorInstances[2].getWrapperElement()).show();
-                that._currCodeMirror = that._codeMirrorInstances[2];
-            } else {
-                $(that._codeMirrorInstances[0].getWrapperElement()).hide();
-                $(that._codeMirrorInstances[1].getWrapperElement()).hide();
-                $(that._codeMirrorInstances[2].getWrapperElement()).hide();
-                that._currCodeMirror = null;
-            }
-            if (that._currCodeMirror) {
-                that._currCodeMirror.refresh();
-                that._isLanguageInitialized = true;
-            }
-        });
-        return $('<div/>').append('Choose an API language: ').append(options).addClass('console-message');
-    },
-
-    _createLanguageSelection: function() {
-        var options = $('<select/>').addClass('language-options');
-        options.append($('<option/>').append(''));
-        options.append($('<option/>').attr('value', 'javascript').append('JavaScript'));
-        options.append($('<option/>').attr('value', 'python').append('Python'));
-        options.append($('<option/>').attr('value', 'ruby').append('Ruby'));
-        return options;
+        if (!this._options) {
+            this._options = $('<select/>').addClass('language-options');
+            this._options.append($('<option/>').append(''));
+            this._options.append($('<option/>').attr('value', 'javascript').append('JavaScript'));
+            this._options.append($('<option/>').attr('value', 'python').append('Python'));
+            this._options.append($('<option/>').attr('value', 'ruby').append('Ruby'));
+        }
+        return $('<div/>').append('Choose an API language: ').append(this._options).addClass('console-message');
     },
 
     _initializeBindings: function() {
@@ -151,6 +125,8 @@ var Console = Class.extend({
         var that = this;
         // this._table.unbindFromCellValueChange();
         console.log('this._rowCreated: ', this._rowCreated);
+        // Case when row was just created and edits should be 
+        //  inputted into the 'create' API call skeleton
         if (this._rowCreated) {
             console.log('BEGIN (post created a row):', recordId);
             this._rowCreated = false;
@@ -187,10 +163,45 @@ var Console = Class.extend({
             }
         });
         $('.detailView>.dialog').append(this._apiConsole);
-        // this._codeMirrorInstances.forEach(function(cm) {
-        //     $(cm.getWrapperElement()).hide();
-        // });
+        this._addOptionsListeners();
     },
+
+    _addOptionsListeners: function() {
+        var that = this;
+        this._options.on('change', function() {
+            console.log('change triggered!');
+            that._language = $(this).val();
+            that._isLanguageInitialized = false;
+            if (that._language === 'javascript') {
+                that._determineWhichConsolesToShow(0);
+                that._currCodeMirror = that._codeMirrorInstances[0];
+            } else if (that._language === 'python') {
+                that._determineWhichConsolesToShow(1);
+                that._currCodeMirror = that._codeMirrorInstances[1];
+            } else if (that._language === 'ruby') {
+                that._determineWhichConsolesToShow(2);
+                that._currCodeMirror = that._codeMirrorInstances[2];
+            } else {
+                that._determineWhichConsolesToShow();
+                that._currCodeMirror = null;
+            }
+            if (that._currCodeMirror) {
+                that._currCodeMirror.refresh();
+                that._isLanguageInitialized = true;
+            }
+        });
+    },
+
+    _determineWhichConsolesToShow: function(indexToShow) {
+        var that = this;
+        this._codeMirrorInstances.forEach(function(cm, index) {
+            if (indexToShow === index) {
+                $(cm.getWrapperElement()).show();
+            } else {
+                $(cm.getWrapperElement()).hide();
+            }
+        });
+    },    
 
     _handleExpandedRowEndEdit: function(recordId) {
         console.log('COLLAPSED: ', arguments, recordId);
