@@ -7,6 +7,10 @@
     background-color: white;
     left: 841px;
     overflow: auto;
+}
+
+.console-message {
+    border-bottom: 1px solid black;
     padding: 10px;
 }
 
@@ -24,3 +28,7 @@
     margin-left: 1em;
 }
 
+.CodeMirror {
+    height: 100%;
+    width: 100%;
+}

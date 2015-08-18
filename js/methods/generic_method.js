@@ -3,8 +3,9 @@
 var Class = require('../vendor/class.js');
 
 var GenericMethod = Class.extend({
-    init: function(tableName, recordId) {
+    init: function(tableName, recordId, language) {
         this._recordId = recordId;
+        this._language = language;
         this._columnNameToDivElem = {};
         this._container = $('<div/>').addClass('update-container');
         this._currKeyValue = $('<div/>').addClass('key-value');

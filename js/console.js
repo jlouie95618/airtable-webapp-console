@@ -1,6 +1,11 @@
 'use strict';
 
 var Class = require('./vendor/class.js');
+var CodeMirror = require('codemirror');
+console.log(CodeMirror);
+require('../node_modules/codemirror/mode/javascript/javascript.js');
+require('../node_modules/codemirror/mode/python/python.js');
+require('../node_modules/codemirror/mode/ruby/ruby.js');
 
 var RecordFinder = require('./record_finder.js');
 var Update = require('./methods/update.js');
@@ -15,34 +20,85 @@ var Console = Class.extend({
         this._baseId = hyperbaseForFrameAccess.getActiveApplicationModel().getId();
         this._keyValuesInRecord = {};
         this._apiConsole = $('<div/>').addClass('api-console');
+        // Variables that pertain to the creation of CodeMirror instances
+        this._textareaIds = ['javascript-textarea', 'python-textarea', 'ruby-textarea'];
+        this._textareaMode = ['javascript', 'python', 'ruby'];
+        this._codeMirrorInstances = [];
+        this._currCodeMirror = null;
+        // Initialization of various elements and listeners:
         this._apiConsole.append(this._generateLanguageOptionsMenu());
+        this._generateCodeMirrorInstances();
         this._initializeBindings();
+    },
+
+    _generateCodeMirrorInstances: function() {
+        var that = this;
+        this._textareaIds.forEach(function(id, index) {
+            that._codeMirrorInstances[index] = new CodeMirror(function(elem) {
+                $(elem).attr('id', that._textareaIds[index]);
+                $(that._apiConsole).append($(elem));
+            }, {
+                value: that._outputDefaultMessages(id),
+                mode: that._textareaMode[index],
+                lineNumbers: true
+            });
+        });
+    },
+
+    _outputDefaultMessages: function(id) {
+        if (id === 'javascript-textarea') {
+            return '// JavaScript Client\n\'console\'\n\'what is going on\'';
+        } else if (id === 'python-textarea') {
+            return '# Python Client - thanks to ____';
+        } else if (id === 'ruby-textarea') {
+            return '# Ruby Client - thanks to ____';
+        }
     },
 
     _generateLanguageOptionsMenu: function() {
         var that = this;
+        var options = this._createLanguageSelection();
+        options.on('change', function() {
+            that._language = $(this).val();
+            that._isLanguageInitialized = false;
+            if (that._language === 'javascript') {
+                $(that._codeMirrorInstances[1].getWrapperElement()).hide();
+                $(that._codeMirrorInstances[2].getWrapperElement()).hide();
+                $(that._codeMirrorInstances[0].getWrapperElement()).show();
+                that._currCodeMirror = that._codeMirrorInstances[0];
+                that._currCodeMirror.refresh();
+                that._isLanguageInitialized = true;
+            } else if (that._language === 'python') {
+                $(that._codeMirrorInstances[0].getWrapperElement()).hide();
+                $(that._codeMirrorInstances[2].getWrapperElement()).hide();
+                $(that._codeMirrorInstances[1].getWrapperElement()).show();
+                that._currCodeMirror = that._codeMirrorInstances[1];
+                that._currCodeMirror.refresh();
+                that._isLanguageInitialized = true;
+            } else if (that._language === 'ruby') {
+                $(that._codeMirrorInstances[0].getWrapperElement()).hide();
+                $(that._codeMirrorInstances[1].getWrapperElement()).hide();
+                $(that._codeMirrorInstances[2].getWrapperElement()).show();
+                that._currCodeMirror = that._codeMirrorInstances[2];
+                that._currCodeMirror.refresh();
+                that._isLanguageInitialized = true;
+            } else {
+                $(that._codeMirrorInstances[0].getWrapperElement()).hide();
+                $(that._codeMirrorInstances[1].getWrapperElement()).hide();
+                $(that._codeMirrorInstances[2].getWrapperElement()).hide();
+                that._currCodeMirror = null;
+            }
+        });
+        return $('<div/>').append('Choose an API language: ').append(options).addClass('console-message');
+    },
+
+    _createLanguageSelection: function() {
         var options = $('<select/>').addClass('language-options');
         options.append($('<option/>').append(''));
         options.append($('<option/>').attr('value', 'javascript').append('JavaScript'));
         options.append($('<option/>').attr('value', 'python').append('Python'));
         options.append($('<option/>').attr('value', 'ruby').append('Ruby'));
-        options.on('change', function(argument) {
-            var value = $(this).val();
-            that._isLanguageInitialized = false;
-            if (value === 'javascript') {
-                that._apiConsole.append(
-                    $('<div/>').append('var Airtable = require("airtable");'));
-                that._apiConsole.append(
-                    $('<div/>').append('var base = new Airtable({ ' + 
-                        'apiKey: "YOUR_API_KEY" }).base(' + that._baseId + ');'));
-                that._isLanguageInitialized = true;
-            } else if (value === 'python') {
-                // that._isLanguageInitialized = true;
-            } else if (value === 'ruby') {
-                // that._isLanguageInitialized = true;
-            }
-        });
-        return $('<div/>').append('Choose an API language: ').append(options);
+        return options;
     },
 
     _initializeBindings: function() {
@@ -133,7 +189,11 @@ var Console = Class.extend({
             }
         });
         $('.detailView>.dialog').append(this._apiConsole);
+        this._codeMirrorInstances.forEach(function(cm) {
+            $(cm.getWrapperElement()).hide();
+        });
     },
+
     _handleExpandedRowEndEdit: function(recordId) {
         console.log('COLLAPSED: ', arguments, recordId);
         // Clean away all the unecessary previous API consoles
