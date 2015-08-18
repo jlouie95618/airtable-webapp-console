@@ -66,27 +66,25 @@ var Console = Class.extend({
                 $(that._codeMirrorInstances[2].getWrapperElement()).hide();
                 $(that._codeMirrorInstances[0].getWrapperElement()).show();
                 that._currCodeMirror = that._codeMirrorInstances[0];
-                that._currCodeMirror.refresh();
-                that._isLanguageInitialized = true;
             } else if (that._language === 'python') {
                 $(that._codeMirrorInstances[0].getWrapperElement()).hide();
                 $(that._codeMirrorInstances[2].getWrapperElement()).hide();
                 $(that._codeMirrorInstances[1].getWrapperElement()).show();
                 that._currCodeMirror = that._codeMirrorInstances[1];
-                that._currCodeMirror.refresh();
-                that._isLanguageInitialized = true;
             } else if (that._language === 'ruby') {
                 $(that._codeMirrorInstances[0].getWrapperElement()).hide();
                 $(that._codeMirrorInstances[1].getWrapperElement()).hide();
                 $(that._codeMirrorInstances[2].getWrapperElement()).show();
                 that._currCodeMirror = that._codeMirrorInstances[2];
-                that._currCodeMirror.refresh();
-                that._isLanguageInitialized = true;
             } else {
                 $(that._codeMirrorInstances[0].getWrapperElement()).hide();
                 $(that._codeMirrorInstances[1].getWrapperElement()).hide();
                 $(that._codeMirrorInstances[2].getWrapperElement()).hide();
                 that._currCodeMirror = null;
+            }
+            if (that._currCodeMirror) {
+                that._currCodeMirror.refresh();
+                that._isLanguageInitialized = true;
             }
         });
         return $('<div/>').append('Choose an API language: ').append(options).addClass('console-message');
@@ -189,9 +187,9 @@ var Console = Class.extend({
             }
         });
         $('.detailView>.dialog').append(this._apiConsole);
-        this._codeMirrorInstances.forEach(function(cm) {
-            $(cm.getWrapperElement()).hide();
-        });
+        // this._codeMirrorInstances.forEach(function(cm) {
+        //     $(cm.getWrapperElement()).hide();
+        // });
     },
 
     _handleExpandedRowEndEdit: function(recordId) {
