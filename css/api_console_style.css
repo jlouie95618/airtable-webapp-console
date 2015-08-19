@@ -2,16 +2,20 @@
 .api-console {
     display: inline-block;
     position: relative;
-    width: 275px;
+    width: 395px;
     height: 100%;
     background-color: white;
-    left: 841px;
-    overflow: auto;
+    left: 641px;
+    /*overflow: auto;*/
 }
 
 .console-message {
     border-bottom: 1px solid black;
-    padding: 10px;
+    padding: 9px;
+    position: fixed;
+    z-index: 5;
+    width: 375px;
+    background-color: white;
 }
 
 .api-console.text {
@@ -31,4 +35,13 @@
 .CodeMirror {
     height: 100%;
     width: 100%;
+    padding-top: 35px;
+}
+
+.detailView > .dialog > .right {
+    left: 330px;
+}
+
+.detailView > .dialog > .left {
+    left: -200px;
 }

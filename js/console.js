@@ -42,6 +42,7 @@ var Console = Class.extend({
                 mode: that._cmMode[index],
                 lineNumbers: true
             });
+            $(that._codeMirrorInstances[index].getWrapperElement()).hide();
         });
     },
 
@@ -51,13 +52,13 @@ var Console = Class.extend({
                 'var Airtable = require(\'airtable\');\n' + 
                 'var base = new Airtable({ \n' + 
                 '\tapiKey: \'YOUR_API_KEY\' \n' + 
-                '}).base(\'' + this._baseId + '\');';
+                '}).base(\'' + this._baseId + '\');\n';
         } else if (id === 'python-cm') {
-            return '# Python Client - thanks to ____\n' + 
+            return '# Python Client - thanks to Nicolo Canali De Rossi (nicocanali)\n' + 
                 'import airtable\n' + 
-                'at = airtable.Airtable(\'' + this._baseId + '\', \'YOUR_API_KEY\')';
+                'at = airtable.Airtable(\'' + this._baseId + '\', \'YOUR_API_KEY\')\n';
         } else if (id === 'ruby-cm') {
-            return '# Ruby Client - thanks to ____';
+            return '# Ruby Client - thanks to Nathan Esquenazi (nesquena)';
         }
     },
 
@@ -115,9 +116,14 @@ var Console = Class.extend({
         console.log('ROW(S) DESTROYED: ', recordIds);
         recordIds.forEach(function(recordId, index) {
             var deletedRecord = new Delete(
-                that._table.getName(), recordId
+                that._table.getName(), recordId, that._language
             );
-            that._apiConsole.append(deletedRecord.outputContainer());
+            // that._currentMethodInstance = null;
+            that._currCodeMirror.replaceRange(
+                deletedRecord.outputAsString(),
+                CodeMirror.Pos(that._currCodeMirror.lastLine())
+            );
+            // that._apiConsole.append(deletedRecord.outputAsString());
         });
     },
 
@@ -200,6 +206,7 @@ var Console = Class.extend({
             } else {
                 $(cm.getWrapperElement()).hide();
             }
+            cm.refresh();
         });
     },    
 
@@ -214,11 +221,19 @@ var Console = Class.extend({
     _inNewRowCellChanges: function(recordId, columnId) {
         var columns = this._table.getCellValuesByColumnId(recordId);
         if (this._currentRecord !== recordId) {
-            this._currentMethodInstance = new Create(this._table.getName());
-            this._apiConsole.append(this._currentMethodInstance.outputContainer());
+            this._currentMethodInstance = new Create(
+                this._table.getName(), this._language,
+                this._currCodeMirror.lastLine()
+            );
+            this._currCodeMirror.replaceRange(
+                this._currentMethodInstance.outputAsString(),
+                CodeMirror.Pos(this._currCodeMirror.lastLine())
+            );
+            this._currCodeMirror.refresh();
+            // this._apiConsole.append(this._currentMethodInstance.outputAsString());
             this._currentRecord = recordId;            
         }
-        this._currentMethodInstance.updateParameters(columns, 
+        this._currentMethodInstance.updateParameters(this._currCodeMirror, columns, 
             columnId, this._table.getColumnById(columnId));
     },
     _inRowCellChanges: function(recordId, columnId) {
@@ -229,12 +244,18 @@ var Console = Class.extend({
         var columns = this._table.getCellValuesByColumnId(recordId);
         if (this._currentRecord !== recordId) { // changed the record (i.e. different expanded record)
             this._currentMethodInstance = new Update(
-                this._table.getName(), recordId
+                this._table.getName(), recordId, this._language,
+                this._currCodeMirror.lastLine()
             );
-            this._apiConsole.append(this._currentMethodInstance.outputContainer());
+            this._currCodeMirror.replaceRange(
+                this._currentMethodInstance.outputAsString(),
+                CodeMirror.Pos(this._currCodeMirror.lastLine())
+            );
+            this._currCodeMirror.refresh();
+            // this._apiConsole.append(this._currentMethodInstance.outputAsString());
             this._currentRecord = recordId;
         }
-        this._currentMethodInstance.updateParameters(columns, 
+        this._currentMethodInstance.updateParameters(this._currCodeMirror, columns, 
             columnId, this._table.getColumnById(columnId));
     }
 });
