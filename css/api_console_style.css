@@ -12,7 +12,7 @@
 .console-message {
     border-bottom: 1px solid black;
     padding: 9px;
-    position: fixed;
+    /*position: fixed;*/
     /*top: 37px;*/
     z-index: 5;
     width: 377px;
@@ -36,7 +36,8 @@
 .CodeMirror {
     height: 100%;
     width: 100%;
-    padding-top: 35px;
+    border: none;
+    /*padding-top: 35px;*/
 }
 
 .detailView .dialog .right {

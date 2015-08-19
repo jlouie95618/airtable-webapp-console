@@ -6,6 +6,7 @@ var CodeMirror = require('codemirror');
 require('../node_modules/codemirror/mode/javascript/javascript.js');
 require('../node_modules/codemirror/mode/python/python.js');
 require('../node_modules/codemirror/mode/ruby/ruby.js');
+// require('../node_modules/codemirror/addon/display/autorefresh.js');
 
 var RecordFinder = require('./record_finder.js');
 var Update = require('./methods/update.js');
@@ -41,7 +42,9 @@ var Console = Class.extend({
                 value: that._outputDefaultMessages(id),
                 mode: that._cmMode[index],
                 lineNumbers: true,
-                readOnly: true
+                lineWrapping: true,
+                readOnly: true//,
+                // autoRefresh: true
             });
             $(that._codeMirrorInstances[index].getWrapperElement()).hide();
         });
@@ -116,16 +119,16 @@ var Console = Class.extend({
         var that = this;
         console.log('ROW(S) DESTROYED: ', recordIds);
         recordIds.forEach(function(recordId, index) {
-            var deletedRecord = new Delete(
+            that._currentMethodInstance = new Delete(
                 that._table.getName(), recordId, that._language
             );
             // that._currentMethodInstance = null;
             that._currCodeMirror.replaceRange(
-                deletedRecord.outputAsString(),
+                that._currentMethodInstance.outputAsString(),
                 CodeMirror.Pos(that._currCodeMirror.lastLine())
             );
             that._currCodeMirror.refresh();
-            // that._apiConsole.append(deletedRecord.outputAsString());
+            // that._apiConsole.append(that._currentMethodInstance.outputAsString());
         });
     },
 
@@ -205,10 +208,11 @@ var Console = Class.extend({
         this._codeMirrorInstances.forEach(function(cm, index) {
             if (indexToShow === index) {
                 $(cm.getWrapperElement()).show();
+                cm.refresh();
             } else {
                 $(cm.getWrapperElement()).hide();
             }
-            cm.refresh();
+            // cm.refresh();
         });
     },    
 
