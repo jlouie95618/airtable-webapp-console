@@ -84,7 +84,9 @@ var GenericMethod = Class.extend({
                 this._currColumn.getTypeOptions()) { // situation when we've got a select option
                 input = this._currColumn.getTypeOptions().choices[input].name;
             }
-            result = '"' + input + '"';
+            console.log('INPUT: ', input);
+            result = JSON.stringify(input);//'"' + input + '"';
+            console.log('RESULT: ', result);
         } else if (input === null) {
             result = input;
         } else if (typeof input === 'object') {

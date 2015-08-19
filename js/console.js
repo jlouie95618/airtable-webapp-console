@@ -40,7 +40,8 @@ var Console = Class.extend({
             }, {
                 value: that._outputDefaultMessages(id),
                 mode: that._cmMode[index],
-                lineNumbers: true
+                lineNumbers: true,
+                readOnly: true
             });
             $(that._codeMirrorInstances[index].getWrapperElement()).hide();
         });
@@ -123,6 +124,7 @@ var Console = Class.extend({
                 deletedRecord.outputAsString(),
                 CodeMirror.Pos(that._currCodeMirror.lastLine())
             );
+            that._currCodeMirror.refresh();
             // that._apiConsole.append(deletedRecord.outputAsString());
         });
     },
@@ -164,7 +166,7 @@ var Console = Class.extend({
         console.log('EXPANDED: ', arguments, recordId);
         this._table.bindToCellValueChange(function(recordId, columnId) {
             console.log('row expanded edit arguments: ', arguments);
-            if (that._isLanguageInitialized) { 
+            if (that._isLanguageInitialized) {
                 that._inExpandedViewCellChanges(recordId, columnId); 
             }
         });
@@ -242,6 +244,7 @@ var Console = Class.extend({
     },
     _inExpandedViewCellChanges: function(recordId, columnId) {// arguments[recordId, fieldId, undefined]
         var columns = this._table.getCellValuesByColumnId(recordId);
+        if (this._currCodeMirror) {this._currCodeMirror.refresh(); }
         if (this._currentRecord !== recordId) { // changed the record (i.e. different expanded record)
             this._currentMethodInstance = new Update(
                 this._table.getName(), recordId, this._language,
