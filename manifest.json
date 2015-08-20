@@ -8,6 +8,8 @@
     "content_scripts": [
         {
             "matches": [
+                "https://mail.google.com/*",
+                "https://inbox.google.com/*",
                 "https://airtable.com/*",
                 "https://staging.airtable.com/*"
             ],

@@ -40,7 +40,10 @@ module.exports = function(grunt) {
                     module: true,
                     hyperbaseForFrameAccess: true,
                     require: true,
-                    CodeMirror: true
+                    CodeMirror: true,
+                    alert: true,
+                    chrome: true,
+                    localStorage: true
                 },
                 validthis: true
             }
