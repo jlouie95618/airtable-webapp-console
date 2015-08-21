@@ -16,7 +16,7 @@ module.exports = function(grunt) {
                         dest: './build/'
                     }, {
                         expand: true,
-                        src: ['./js/extension.js', './js/vendor/jquery-1.11.3.min.js', 'manifest.json'],
+                        src: ['./js/extension.js', './js/background.js', './js/vendor/jquery-1.11.3.min.js', 'manifest.json'],
                         dest: './build/extension/'
 
                     }

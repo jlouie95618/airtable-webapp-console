@@ -3,7 +3,10 @@
     "name": "Airtable Webapp Console",
     "description": "Development for a console for the Airtable web application expanded record view.",
     "version": "0.0",
-
+    "background": {
+        "scripts": ["js/vendor/jquery-1.11.3.min.js", "js/background.js"],
+        "persistent": false
+    },
     "content_security_policy": "script-src 'self' https://airtable-webapp-console.s3-us-west-1.amazonaws.com; object-src 'self'",
     "content_scripts": [
         {

@@ -31,3 +31,8 @@ window.addEventListener("message", function(event) {
         console.log('message.data from extension: ', message.data);
     }
 });
+
+console.log(chrome.storage);
+console.log(chrome.storage.local);
+
+console.log(localStorage);
