@@ -40,18 +40,18 @@
     /*padding-top: 35px;*/
 }
 
-.detailView .dialog .right {
+.detailViewWithActivityFeedBase .dialog .right {
     left: 330px;
 }
 
-.detailView .dialog .left {
+.detailViewWithActivityFeedBase .dialog .left {
     left: -200px;
 }
 
-.detailView .dialog > .close {
+.detailViewWithActivityFeedBase .dialog > .close {
     right: 200px;
 }
 
-.detailView .dialog > .notificationLevel {
+.detailViewWithActivityFeedBase .dialog > .notificationLevel {
     right: 220px;
 }

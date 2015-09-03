@@ -173,7 +173,7 @@ var Console = Class.extend({
                 that._inExpandedViewCellChanges(recordId, columnId); 
             }
         });
-        $('.detailView>.dialog').append(this._apiConsole);
+        $('.detailViewWithActivityFeedBase>.dialog').append(this._apiConsole);
         this._addOptionsListeners();
     },
 
