@@ -16,7 +16,7 @@ module.exports = function(grunt) {
                         dest: './build/'
                     }, {
                         expand: true,
-                        src: ['./js/extension.js', './js/vendor/jquery-1.11.3.min.js', 'manifest.json'],
+                        src: ['./js/extension.js', './js/background.js', './js/vendor/jquery-1.11.3.min.js', 'manifest.json'],
                         dest: './build/extension/'
 
                     }
@@ -39,7 +39,11 @@ module.exports = function(grunt) {
                     console: true,
                     module: true,
                     hyperbaseForFrameAccess: true,
-                    require: true
+                    require: true,
+                    CodeMirror: true,
+                    alert: true,
+                    chrome: true,
+                    localStorage: true
                 },
                 validthis: true
             }

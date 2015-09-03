@@ -2,12 +2,21 @@
 .api-console {
     display: inline-block;
     position: relative;
-    width: 275px;
+    width: 395px;
     height: 100%;
     background-color: white;
-    left: 841px;
-    overflow: auto;
-    padding: 10px;
+    left: 641px;
+    /*overflow: auto;*/
+}
+
+.console-message {
+    border-bottom: 1px solid black;
+    padding: 9px;
+    /*position: fixed;*/
+    /*top: 37px;*/
+    z-index: 5;
+    width: 377px;
+    background-color: white;
 }
 
 .api-console.text {
@@ -24,3 +33,25 @@
     margin-left: 1em;
 }
 
+.CodeMirror {
+    height: 100%;
+    width: 100%;
+    border: none;
+    /*padding-top: 35px;*/
+}
+
+.detailViewWithActivityFeedBase .dialog .right {
+    left: 330px;
+}
+
+.detailViewWithActivityFeedBase .dialog .left {
+    left: -200px;
+}
+
+.detailViewWithActivityFeedBase .dialog > .close {
+    right: 200px;
+}
+
+.detailViewWithActivityFeedBase .dialog > .notificationLevel {
+    right: 220px;
+}

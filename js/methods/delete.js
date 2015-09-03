@@ -3,10 +3,11 @@
 var GenericMethod = require('./generic_method.js');
 
 var Delete = GenericMethod.extend({
-    init: function(tableName, recordId) {
-        this._super(tableName, recordId);
-        this._container.append($('<div/>').append('base("' + tableName + 
-            '").delete(' + recordId + ');'));
+    init: function(tableName, recordId, language) {
+        this._super(tableName, recordId, language, null);
+        this._result += 'base("' + tableName + '").delete(\'' + recordId + '\');\n';
+        // this._currLineNum = null;
+        // this._lastLineNum = null;    
     }
 });
 
