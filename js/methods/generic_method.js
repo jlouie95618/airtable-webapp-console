@@ -7,9 +7,8 @@ var GenericMethod = Class.extend({
         this._recordId = recordId;
         this._language = language;
         this._columnNameToReplaceRangeInfo = {};
-        this._result = '';//$('<div/>').addClass('update-result');
-        this._currLineObject = '';//$('<div/>').addClass('key-value');
-        console.log(prevLastConsoleLineNum);
+        this._result = '';
+        this._currLineObject = '';
         this._prevLastLineNum = prevLastConsoleLineNum;
 
     },
@@ -20,12 +19,14 @@ var GenericMethod = Class.extend({
         var that = this;
         var columnName = currColumn.getName();
         this._currColumn = currColumn;
-        if (currColumnId !== this._currentColumnIdBeingModified) { // well we changed which column we're modifying
-            if (columnName in this._columnNameToReplaceRangeInfo) { // have we already seen the column we're modifying?
+        // Have we changed which column we're modifying?
+        if (currColumnId !== this._currentColumnIdBeingModified) {
+            // Have we already seen the column we're modifying?
+            if (columnName in this._columnNameToReplaceRangeInfo) {
                 this._currLineObject = this._columnNameToReplaceRangeInfo[columnName];
                 this._currLineObject.value = this._outputValue(columns[currColumnId]);
                 this._currLineNum = this._currLineObject.lineNum;
-            } else { // no we haven't so create new key-value div
+            } else { // No, we haven't so create new key-value div
                 this._constructNewLine(columnName, 
                     this._outputValue(columns[currColumnId]));
             }         
@@ -33,10 +34,6 @@ var GenericMethod = Class.extend({
         } else {
             this._currLineObject.value = this._outputValue(columns[this._currentColumnIdBeingModified]);
         }
-
-        console.log('this._currentColumnIdBeingModified: ', this._currentColumnIdBeingModified);
-        console.log('columns: ', columns);
-
         if (this._isNotCountFormulaLookupRollupType()) {
             currCm.replaceRange(
                 this._convertLineObjectToString(this._currLineObject),
@@ -48,10 +45,7 @@ var GenericMethod = Class.extend({
                     ch: undefined
                 }
             );
-
-
         }
-        
     },
     _constructNewLine: function(columnName, value) {
         if (this._isNotCountFormulaLookupRollupType()) {
@@ -63,30 +57,28 @@ var GenericMethod = Class.extend({
             };
             this._lastLineNum += 1;
             this._columnNameToReplaceRangeInfo[columnName] = this._currLineObject;
-            // this._updateValue.append(this._currLineObject);
-            console.log('saved key value pair...', columnName, this._currLineObject, this._columnNameToReplaceRangeInfo);
         }
     },
     _convertLineObjectToString: function(lineObject, isNew) {
         var result;
         if (lineObject) {
-            // if (isNew) { result += '\n'; }
             result = '\t"' + lineObject.columnName + '": ' + lineObject.value;
         } else { result = ''; }
         return result;
     },
+    // This method basically just takes into account the different field
+    //  types and creates the corresponding API call for a given change
     _outputValue: function(input) {
         var result = '';
         var first = true;
         var that = this;
         if (typeof input === 'string') {
-            if ((this._currColumn.getType() === 'select' || this._currColumn.getType() === 'multiSelect') &&
+            if ((this._currColumn.getType() === 'select' || 
+                this._currColumn.getType() === 'multiSelect') &&
                 this._currColumn.getTypeOptions()) { // situation when we've got a select option
                 input = this._currColumn.getTypeOptions().choices[input].name;
             }
-            console.log('INPUT: ', input);
-            result = JSON.stringify(input);//'"' + input + '"';
-            console.log('RESULT: ', result);
+            result = JSON.stringify(input);
         } else if (input === null) {
             result = input;
         } else if (typeof input === 'object') {
@@ -97,20 +89,12 @@ var GenericMethod = Class.extend({
             } else if (Object.prototype.toString.call(input) === '[object Array]') {
                 result += '[ ';
                 input.forEach(function(elem) {
-                    if (first) {
-                        if (that._currColumn.getType() === 'foreignKey') {
-                            result += that._outputValue(elem.foreignRowId);
-                        } else {
-                            result += that._outputValue(elem);
-                        }
-                        first = false;
+                    if (first) { first = false; } 
+                    else { result += ', ';  }
+                    if (that._currColumn.getType() === 'foreignKey') {
+                        result += that._outputValue(elem.foreignRowId);
                     } else {
-                        result += ', ';
-                        if (that._currColumn.getType() === 'foreignKey') {
-                            result += that._outputValue(elem.foreignRowId);
-                        } else {
-                            result += that._outputValue(elem);
-                        }
+                        result += that._outputValue(elem);
                     }
                 });
                 result += ' ]';
@@ -120,6 +104,8 @@ var GenericMethod = Class.extend({
         }
         return result;
     },
+    // Make sure we check for these types because they are not technically
+    //  directly changeable the API
     _isNotCountFormulaLookupRollupType: function() {
         var currColumnType;
         if (this._currColumn) {

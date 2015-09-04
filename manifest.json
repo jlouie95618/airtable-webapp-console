@@ -31,8 +31,5 @@
         "webNavigation",
         "https://airtable.com/*",
         "https://staging.airtable.com/*"
-    ],
-    "web_accessible_resources": [
-        // "https://airtable-webapp-console.s3-us-west-1.amazonaws.com/test.js"
     ]
 }

@@ -21,7 +21,6 @@ module.exports = function(grunt) {
 
                     }
                 ]
-
             }
         },
         jshint: {
