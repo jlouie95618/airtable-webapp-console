@@ -1,5 +1,10 @@
 'use strict'; // indicate to use Strict Mode
 
+var mainScript = $('<script/>');
+var codemirrorJs = $('<script/>'); 
+var javascript = $('<script/>');
+var python = $('<script/>'); 
+var ruby = $('<script/>');
 var codeMirrorCss = $('<link/>');
 var css = $('<link/>');
 
